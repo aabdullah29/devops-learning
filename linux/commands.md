@@ -29,6 +29,175 @@
 | Installed packages | `apt list --installed`, `dpkg -l` |
 | Manual packages | `apt-mark showmanual` |
 | Change password | `passwd` |
+| Pipe commands | `command1 | command2` |
+| Redirect output | `command > file`, `command >> file` |
+| Redirect errors | `command 2> error.txt`, `command 2>&1` |
+| Search text in files | `grep "text" file.txt`, `grep -r`, `grep -i` |
+| Find files | `find . -name file.txt`, `find . -type f` |
+| Show environment vars | `printenv`, `env`, `echo $HOME` |
+| Set environment var | `export NAME="value"` |
+| Find command location | `which command`, `command -v command` |
+| HTTP requests | `curl https://url`, `curl -I https://url` |
+| Download file | `wget https://url`, `wget -O filename https://url` |
+| Create archive | `tar -cvf archive.tar dir/` |
+| Extract archive | `tar -xvf archive.tar` |
+| View scheduled jobs | `crontab -l` |
+| Edit scheduled jobs | `crontab -e` |
+| Create variable | `variable="value"` |
+| Make script executable | `chmod +x script.sh` |
+
+---
+
+## Key command explanations and aliases
+
+### Pipe command
+```bash
+command1 | command2
+# Send output of command1 as input to command2
+```
+Example:
+```bash
+ls | grep ".txt"
+# List files, then filter for .txt files
+```
+
+### Output redirection
+```bash
+command > file.txt
+# Write output to file (overwrite)
+
+command >> file.txt
+# Append output to file (do not overwrite)
+
+command > output.txt 2> error.txt
+# Redirect output and errors separately
+
+command > file.txt 2>&1
+# Redirect both output and errors to the same file
+# 2>&1 means "send stream 2 (errors) to stream 1 (output)"
+```
+
+### Set environment variable
+```bash
+export MYVAR="value"
+# Make variable available to current shell and child processes
+
+unset MYVAR
+# Remove the variable
+```
+
+### Find command location
+```bash
+which git
+# Show the full path of a command
+
+command -v git
+# Similar to which, but more accurate in some shells
+```
+
+### Search in files
+```bash
+grep "text" file.txt
+# Find lines containing "text"
+
+grep -i "text" file.txt
+# Case-insensitive search (-i flag)
+
+grep -n "text" file.txt
+# Show line numbers (-n flag)
+
+grep -r "text" directory/
+# Search recursively in directory (-r flag)
+
+grep -v "text" file.txt
+# Show lines that do NOT match (-v flag, invert match)
+```
+
+### Find files
+```bash
+find . -name "file.txt"
+# Find by name in current directory and subdirectories
+
+find . -type f
+# Find all files (not directories)
+
+find . -type d
+# Find all directories (not files)
+
+find . -size +10M
+# Find files larger than 10 MB
+```
+
+### HTTP requests and downloads
+```bash
+curl https://example.com
+# Make an HTTP request and display response
+
+curl -I https://example.com
+# Show headers only (-I flag)
+
+curl -O https://example.com/file.zip
+# Download file with original filename (-O flag)
+
+wget https://example.com/file.zip
+# Alternative download tool
+
+wget -O filename.zip https://example.com/file.zip
+# Download with custom filename (-O flag)
+```
+
+### Archive operations
+```bash
+tar -cvf archive.tar directory/
+# Create tar archive (-c create, -v verbose, -f file)
+
+tar -xvf archive.tar
+# Extract tar archive (-x extract, -v verbose, -f file)
+
+tar -czvf archive.tar.gz directory/
+# Create compressed tar.gz (-z for gzip compression)
+
+tar -xzvf archive.tar.gz
+# Extract compressed tar.gz
+```
+
+### Cron - scheduled tasks
+```bash
+crontab -l
+# List current user's cron jobs
+
+crontab -e
+# Edit cron jobs (opens in editor)
+
+crontab -r
+# Remove all cron jobs for current user
+```
+
+### Bash basics
+```bash
+variable="value"
+echo "$variable"
+# Create and use a variable
+
+if [ -f "file.txt" ]; then
+    echo "File exists"
+fi
+# If statement (check if file exists)
+
+for item in one two three; do
+    echo "$item"
+done
+# For loop (iterate through items)
+
+#!/bin/bash
+# Script shebang (tells system to use bash)
+
+chmod +x script.sh
+# Make script executable (+x adds execute permission)
+
+./script.sh
+# Run script from current directory
+```
 
 ---
 
@@ -576,6 +745,449 @@ dpkg -l | grep nginx
 ```
 Searches installed packages for a specific name.
 - Good for checking whether a package is installed.
+
+---
+
+## 15. Pipes and redirection
+
+### Pipes: `|`
+```bash
+command1 | command2
+```
+Sends the output of `command1` as input to `command2`.
+
+Example:
+```bash
+ls | grep ".txt"
+```
+Lists files, then filters for names containing `.txt`.
+- Useful for combining multiple commands.
+
+### Output redirection: `>`
+```bash
+command > file.txt
+```
+Writes command output to a file (overwrites the file).
+
+Example:
+```bash
+echo "Hello" > greeting.txt
+```
+Creates or overwrites `greeting.txt` with "Hello".
+- Verify with `cat greeting.txt`.
+
+### Append: `>>`
+```bash
+command >> file.txt
+```
+Appends command output to a file (does not overwrite).
+
+Example:
+```bash
+echo "World" >> greeting.txt
+```
+Adds "World" to the end of `greeting.txt`.
+
+### Input redirection: `<`
+```bash
+command < file.txt
+```
+Uses a file as input for a command.
+
+Example:
+```bash
+sort < names.txt
+```
+Sorts the contents of `names.txt`.
+
+### Error redirection: `2>`
+```bash
+command 2> error.txt
+```
+Redirects errors to a file.
+
+Example:
+```bash
+ls /invalid 2> error.log
+```
+Captures the error in `error.log`.
+
+### Both output and error: `2>&1`
+```bash
+command > output.txt 2>&1
+```
+Redirects both normal output and errors to the same file.
+
+Example:
+```bash
+script.sh > results.txt 2>&1
+```
+Logs everything to `results.txt`.
+
+---
+
+## 16. Environment variables
+
+### `printenv` / `env`
+```bash
+printenv
+env
+```
+Shows all environment variables.
+- Verify by looking for common variables like `PATH`, `HOME`, `USER`.
+
+### `echo $VARIABLE`
+```bash
+echo $HOME
+echo $PATH
+echo $USER
+```
+Displays the value of an environment variable.
+
+Example:
+```bash
+echo $PATH
+```
+Shows directories where the shell searches for commands.
+
+### `export`
+```bash
+export MYVAR="value"
+```
+Creates or updates an environment variable.
+- It is available for the current shell and child processes.
+- Verify with `echo $MYVAR`.
+
+### `unset`
+```bash
+unset MYVAR
+```
+Removes an environment variable.
+- Verify by running `echo $MYVAR` (should be empty).
+
+### Temporary environment variable
+```bash
+ENV_NAME="value" command
+```
+Runs a command with a temporary environment variable.
+
+Example:
+```bash
+DEBUG=1 ./script.sh
+```
+Runs `script.sh` with `DEBUG=1` set.
+
+---
+
+## 17. PATH
+
+### `echo $PATH`
+```bash
+echo $PATH
+```
+Shows directories where the shell looks for executable commands.
+- The directories are separated by `:`.
+- Verify by checking common paths like `/usr/bin`, `/usr/local/bin`.
+
+### `which`
+```bash
+which python
+which git
+```
+Shows the full path of a command.
+
+Example:
+```bash
+which python
+```
+Outputs something like `/usr/bin/python3`.
+- Useful to confirm which version of a command is installed.
+
+### `command -v`
+```bash
+command -v git
+```
+Checks how a command is resolved in the shell.
+- More accurate than `which` in some shells.
+
+---
+
+## 18. grep - searching files
+
+### `grep`
+```bash
+grep "text" file.txt
+```
+Searches for text in a file and displays matching lines.
+- What is it? A text search command.
+- Why do I need it? To find specific content in files or command output.
+
+Example:
+```bash
+grep "error" /var/log/syslog
+```
+Finds all lines containing "error" in the syslog.
+
+### `grep -i` (case-insensitive)
+```bash
+grep -i "Error" file.txt
+```
+Searches ignoring case (matches "error", "Error", "ERROR").
+
+### `grep -n` (line numbers)
+```bash
+grep -n "text" file.txt
+```
+Displays matching lines with their line numbers.
+
+### `grep -r` (recursive search)
+```bash
+grep -r "function" ./src/
+```
+Searches recursively through directories.
+- Useful for searching source code.
+
+### `grep -v` (invert match)
+```bash
+grep -v "comment" file.txt
+```
+Shows lines that do NOT match.
+
+Example:
+```bash
+ps aux | grep -v grep
+```
+Removes the grep command itself from process output.
+
+---
+
+## 19. find - searching for files
+
+### `find`
+```bash
+find . -name "file.txt"
+```
+Searches for a file by name.
+- What is it? A file search command.
+- Why do I need it? To locate files in a directory tree.
+
+Example:
+```bash
+find /home -name "*.log"
+```
+Finds all `.log` files in `/home`.
+
+### `find -type f` (files only)
+```bash
+find . -type f
+```
+Searches for files (not directories).
+
+### `find -type d` (directories only)
+```bash
+find . -type d
+```
+Searches for directories (not files).
+
+### `find -size` (file size)
+```bash
+find . -type f -size +10M
+```
+Finds files larger than 10 MB.
+
+### Combining conditions
+```bash
+find /var/log -name "*.log" -type f
+```
+Finds all `.log` files in `/var/log`.
+
+---
+
+## 20. curl - HTTP requests
+
+### `curl`
+```bash
+curl https://example.com
+```
+Makes an HTTP request and displays the response.
+- What is it? A command-line tool for HTTP/HTTPS requests.
+- Why do I need it? To test APIs, download content, or check web servers.
+
+Example:
+```bash
+curl https://httpbin.org/get
+```
+Fetches a test page and displays the response.
+
+### `curl -I` (headers only)
+```bash
+curl -I https://example.com
+```
+Shows HTTP headers without the body.
+- Useful for checking response codes and server info.
+
+### `curl -O` (download file)
+```bash
+curl -O https://example.com/file.zip
+```
+Downloads a file with its original filename.
+
+### `curl -L` (follow redirects)
+```bash
+curl -L https://short.url
+```
+Follows HTTP redirects.
+
+---
+
+## 21. wget - download files
+
+### `wget`
+```bash
+wget https://example.com/file.zip
+```
+Downloads a file from the web.
+- Similar to `curl -O`, but designed specifically for downloading.
+
+### `wget -O`
+```bash
+wget -O myfile.zip https://example.com/file.zip
+```
+Downloads and saves with a custom filename.
+
+---
+
+## 22. tar - archive and compress
+
+### `tar -cvf` (create archive)
+```bash
+tar -cvf archive.tar directory/
+```
+Creates a tar archive.
+- `-c` = create, `-v` = verbose, `-f` = file
+
+### `tar -xvf` (extract archive)
+```bash
+tar -xvf archive.tar
+```
+Extracts a tar archive.
+- `-x` = extract, `-v` = verbose, `-f` = file
+
+### `tar -czvf` (create compressed)
+```bash
+tar -czvf archive.tar.gz directory/
+```
+Creates a compressed `.tar.gz` archive.
+- `-z` = compress with gzip
+
+### `tar -xzvf` (extract compressed)
+```bash
+tar -xzvf archive.tar.gz
+```
+Extracts a compressed `.tar.gz` archive.
+
+---
+
+## 23. Cron - scheduled tasks
+
+### `crontab -l`
+```bash
+crontab -l
+```
+Lists the current user's scheduled cron jobs.
+- Verify by checking the output.
+
+### `crontab -e`
+```bash
+crontab -e
+```
+Opens the cron editor to add or modify jobs.
+- Adds the job to the crontab for the current user.
+
+### `crontab -r`
+```bash
+crontab -r
+```
+Removes all cron jobs for the current user.
+- Use with caution.
+
+### Cron format
+```
+# ┌──────── minute (0-59)
+# │ ┌────── hour (0-23)
+# │ │ ┌──── day of month (1-31)
+# │ │ │ ┌── month (1-12)
+# │ │ │ │ ┌ day of week (0-7)
+# │ │ │ │ │
+# * * * * * command
+```
+
+Example:
+```bash
+0 2 * * * /path/to/script.sh
+```
+Runs the script every day at 2:00 AM.
+
+---
+
+## 24. Bash basics
+
+### `echo`
+```bash
+echo "Hello"
+```
+Prints text to the terminal.
+- Verify by seeing the output.
+
+### Variables
+```bash
+variable="value"
+echo "$variable"
+```
+Creates and uses a shell variable.
+- Variables store values for later use.
+
+### If statement
+```bash
+if [ condition ]; then
+    command
+fi
+```
+Runs a command only if the condition is true.
+
+Example:
+```bash
+if [ -f "file.txt" ]; then
+    echo "File exists"
+fi
+```
+
+### For loop
+```bash
+for item in one two three; do
+    echo "$item"
+done
+```
+Repeats a command for each item.
+
+### Bash script shebang
+```bash
+#!/bin/bash
+echo "Script started"
+```
+The `#!/bin/bash` line tells the system to run the script as a bash script.
+
+### Make script executable
+```bash
+chmod +x script.sh
+```
+Adds execute permission to a script.
+
+### Run script
+```bash
+./script.sh
+```
+Executes the script from the current directory.
 
 ---
 

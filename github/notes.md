@@ -123,5 +123,143 @@ git push -u origin main
 
 This is not just a Git command. It is the step that makes my code appear on GitHub for others to see and review.
 
+---
+
+## GitHub Authentication
+
+### HTTPS vs SSH
+
+**HTTPS:**
+```
+https://github.com/USERNAME/REPOSITORY.git
+```
+- Uses username/token for authentication
+- Works behind most firewalls
+- Requires entering credentials (or using credential manager)
+- GitHub no longer accepts account passwords; use Personal Access Token (PAT)
+
+**SSH:**
+```
+git@github.com:USERNAME/REPOSITORY.git
+```
+- Uses SSH key pair for authentication
+- Requires SSH keys to be set up
+- No need to enter password after key is added to agent
+- Requires SSH access (may not work behind some firewalls)
+
+### SSH key pair
+
+A key pair has two parts:
+
+**Private key:**
+```
+~/.ssh/id_ed25519
+```
+- Kept secret on your machine
+- Used to authenticate with GitHub
+- NEVER share this
+
+**Public key:**
+```
+~/.ssh/id_ed25519.pub
+```
+- Shared with GitHub
+- GitHub stores it and recognizes your private key
+- SAFE to share
+
+### SSH Agent
+
+The SSH agent is a service that keeps your private key available so you don't need to enter the passphrase every time.
+
+Flow:
+```
+My Computer
+    ↓
+SSH Agent (holds private key)
+    ↓
+GitHub (verifies public key)
+    ↓
+Authenticated
+```
+
+### Authentication workflow
+
+1. Generate SSH key pair
+   ```bash
+   ssh-keygen -t ed25519 -C "your_email@example.com"
+   ```
+
+2. Start SSH agent
+   ```bash
+   eval "$(ssh-agent -s)"
+   ```
+
+3. Add private key to agent
+   ```bash
+   ssh-add ~/.ssh/id_ed25519
+   ```
+
+4. Copy public key to GitHub
+   ```bash
+   cat ~/.ssh/id_ed25519.pub
+   # Copy to GitHub Settings → SSH and GPG keys
+   ```
+
+5. Test connection
+   ```bash
+   ssh -T git@github.com
+   ```
+
+6. Use SSH for Git operations
+   ```bash
+   git clone git@github.com:USERNAME/REPOSITORY.git
+   git push
+   git pull
+   ```
+
+### Fetch vs Pull
+
+I often confuse these, so here's the distinction:
+
+**Fetch:**
+```bash
+git fetch
+```
+- Downloads remote changes
+- Does NOT automatically change your local files
+- Safe to do before knowing what changed
+- Verify with `git log HEAD..origin/main --oneline`
+
+**Pull:**
+```bash
+git pull
+```
+- Fetch + merge
+- Downloads AND integrates remote changes
+- Updates your local branch
+- Used when you want to sync up
+
+### Remote configuration
+
+Check your remote:
+```bash
+git remote -v
+```
+
+Output should show:
+```
+origin  git@github.com:USERNAME/REPOSITORY.git (fetch)
+origin  git@github.com:USERNAME/REPOSITORY.git (push)
+```
+
+If it shows HTTPS, change to SSH:
+```bash
+git remote set-url origin git@github.com:USERNAME/REPOSITORY.git
+```
+
+---
+
 ## My learning summary
 GitHub is where the Git workflow becomes collaborative. The important part is not memorizing every Git command, but understanding the repository flow: clone, branch, commit, push, pull request, review, and merge.
+
+For authentication, I learned that SSH is more secure and convenient than HTTPS once set up. The SSH agent keeps my private key available so I don't need to enter a passphrase every time.

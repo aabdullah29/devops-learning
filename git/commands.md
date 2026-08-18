@@ -39,6 +39,158 @@
 | Push main & set upstream | `git push -u origin main` |
 | Pull updates | `git pull` |
 | Fetch without merging | `git fetch` |
+| Fetch from specific remote | `git fetch origin` |
+| Show remote branches | `git branch -r`, `git branch -a` |
+| Change remote URL | `git remote set-url origin <url>` |
+| Clone via SSH | `git clone git@github.com:USERNAME/REPO.git` |
+| Clone via HTTPS | `git clone https://github.com/USERNAME/REPO.git` |
+| View commits not pulled | `git log HEAD..origin/main` |
+| Create + switch branch | `git switch -c <name>` |
+| Delete branch | `git branch -d <name>` |
+| Save work temp | `git stash` |
+| Apply stashed changes | `git stash pop` |
+| List stashes | `git stash list` |
+| Undo staged changes | `git restore --staged <file>` |
+| Revert commit (safe) | `git revert <commit>` |
+| Tag a release | `git tag v1.0.0` |
+
+---
+
+## Key command explanations and aliases
+
+### Set upstream branch
+
+```bash
+git push -u origin main
+# Push to origin and set upstream branch
+
+# -u is short for --set-upstream
+git push --set-upstream origin main
+# Same as: git push -u origin main
+
+# After setting upstream, you can use git push without specifying the remote/branch
+```
+
+### Clone via SSH vs HTTPS
+
+```bash
+git clone git@github.com:USERNAME/REPOSITORY.git
+# Clone using SSH (requires SSH keys to be set up)
+# No password needed after SSH key is configured
+
+git clone https://github.com/USERNAME/REPOSITORY.git
+# Clone using HTTPS (requires username/token or credential manager)
+# May need to enter credentials each time
+```
+
+### Check and modify remote
+
+```bash
+git remote -v
+# Show all connected remotes (verbose)
+# Output shows both fetch and push URLs
+
+git remote add origin <repository-url>
+# Add a new remote named "origin"
+
+git remote remove origin
+# Remove the remote
+
+git remote set-url origin git@github.com:USERNAME/REPO.git
+# Change remote URL (useful to switch from HTTPS to SSH)
+```
+
+### Fetch vs Pull
+
+```bash
+git fetch
+# Download remote changes but do NOT merge them
+# Safe to do before reviewing what changed
+
+git fetch origin
+# Fetch from specific remote
+
+git pull
+# Fetch AND merge (fetch + merge in one command)
+# Updates your local branch with remote changes
+
+# Check what changed before pulling:
+git log HEAD..origin/main --oneline
+# Shows commits that exist remotely but not locally
+```
+
+### Branches - local and remote
+
+```bash
+git branch
+# List local branches only
+
+git branch -r
+# List remote branches only (-r short for --remotes)
+
+git branch -a
+# List all branches (local and remote) (-a short for --all)
+
+git switch -c feature-name
+# Create AND switch to new branch (-c short for --create)
+
+git branch -d feature-name
+# Delete branch (only if merged) (-d short for --delete)
+
+git branch -D feature-name
+# Force delete branch (even if not merged)
+```
+
+### Stash - save work temporarily
+
+```bash
+git stash
+# Save uncommitted changes temporarily
+
+git stash list
+# Show all saved stashes
+
+git stash pop
+# Apply latest stash and remove it
+
+git stash apply stash@{0}
+# Apply specific stash without removing it
+```
+
+### Undo changes
+
+```bash
+git restore <file>
+# Discard unstaged changes in a file (restore from HEAD)
+
+git restore --staged <file>
+# Unstage a file (opposite of: git add <file>)
+
+git revert <commit-hash>
+# Create a NEW commit that reverses the old commit (safe, keeps history)
+
+git reset --soft <commit>
+# Move HEAD but keep changes staged
+
+git reset --hard <commit>
+# Move HEAD and discard all changes (careful! data loss possible)
+```
+
+### Tags - mark releases
+
+```bash
+git tag v1.0.0
+# Create a tag for current commit
+
+git push origin v1.0.0
+# Push tag to remote
+
+git tag --list
+# List all tags
+
+git show v1.0.0
+# Show details of a tag
+```
 
 ---
 
@@ -412,6 +564,85 @@ This is a normal basic workflow:
 2. Stage changes
 3. Commit
 4. Push to remote
+
+### `git fetch`
+```bash
+git fetch
+```
+Downloads remote changes without automatically merging them.
+- Why do I need it? To see what changed on the remote before integrating.
+- Verify with `git log HEAD..origin/main --oneline`.
+
+---
+
+## 15. Remote branches
+
+### `git branch -r`
+```bash
+git branch -r
+```
+Lists remote-tracking branches.
+- Shows what branches exist on the remote repository.
+
+### `git branch -a`
+```bash
+git branch -a
+```
+Lists both local and remote branches.
+- Useful for seeing the full picture.
+
+---
+
+## 16. Check remote changes
+
+### View remote commits not yet local
+```bash
+git fetch origin
+git log HEAD..origin/main --oneline
+```
+Shows commits that exist on the remote but not in your local branch.
+- Helps decide whether to pull.
+
+---
+
+## 17. Clone via SSH and HTTPS
+
+### Clone with HTTPS
+```bash
+git clone https://github.com/USERNAME/REPOSITORY.git
+```
+Downloads a repo using HTTPS authentication.
+- Works with Personal Access Tokens or credential managers.
+
+### Clone with SSH
+```bash
+git clone git@github.com:USERNAME/REPOSITORY.git
+```
+Downloads a repo using SSH key authentication.
+- Requires SSH keys to be set up on the remote host (GitHub, Bitbucket, etc.).
+
+---
+
+## 18. Git workflow with remotes
+
+```bash
+git clone <repository-url>
+git status
+git switch -c feature-branch
+git add .
+git commit -m "Add feature"
+git push -u origin feature-branch
+git fetch origin
+git pull origin main
+```
+
+This workflow covers:
+1. Clone from remote
+2. Create a branch locally
+3. Make changes and commit
+4. Push branch to remote
+5. Fetch to check for updates
+6. Pull to integrate remote changes
 
 ---
 

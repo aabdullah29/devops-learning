@@ -23,6 +23,161 @@
 | List repos | `gh repo list` |
 | Clone via GitHub CLI | `gh repo clone <owner>/<repo>` |
 | Create repo | `gh repo create` |
+| Check SSH installed | `ssh -V` |
+| List SSH keys | `ls -al ~/.ssh` |
+| Generate SSH key | `ssh-keygen -t ed25519 -C "email@example.com"` |
+| Start SSH agent | `eval "$(ssh-agent -s)"` |
+| Add SSH key to agent | `ssh-add ~/.ssh/id_ed25519` |
+| Show public SSH key | `cat ~/.ssh/id_ed25519.pub` |
+| Test GitHub SSH | `ssh -T git@github.com` |
+| Change to SSH remote | `git remote set-url origin git@github.com:USERNAME/REPO.git` |
+| Verify remote URL | `git remote -v` |
+| Check GitHub auth | `gh auth status` |
+| View pull request | `gh pr view <pr-number>` |
+| Check PR status | `gh pr status` |
+| Merge PR | `gh pr merge <pr-number>` |
+| View issue | `gh issue view <issue-number>` |
+| Close issue | `gh issue close <issue-number>` |
+
+---
+
+## Key command explanations and aliases
+
+### SSH setup and authentication
+
+```bash
+ssh -V
+# Check SSH version installed
+
+ssh-keygen -t ed25519 -C "your_email@example.com"
+# Generate a new ED25519 SSH key pair
+# Creates:
+#   - Private key: ~/.ssh/id_ed25519 (keep secret!)
+#   - Public key: ~/.ssh/id_ed25519.pub (add to GitHub)
+
+eval "$(ssh-agent -s)"
+# Start the SSH authentication agent
+# Allows SSH to work without entering passphrase every time
+
+ssh-add ~/.ssh/id_ed25519
+# Add private SSH key to the running agent
+# After this, SSH authentication works automatically
+
+cat ~/.ssh/id_ed25519.pub
+# Display your public SSH key
+# Copy this and add to GitHub → Settings → SSH and GPG keys
+```
+
+### Test GitHub SSH connection
+
+```bash
+ssh -T git@github.com
+# Test SSH authentication with GitHub
+
+# Success message:
+# Hi USERNAME! You've successfully authenticated, but GitHub does not provide shell access.
+
+# If it fails:
+# - Make sure public key is added to GitHub
+# - Check that SSH agent is running
+# - Verify the private key is added to the agent
+```
+
+### Clone with SSH vs HTTPS
+
+```bash
+git clone git@github.com:USERNAME/REPOSITORY.git
+# Clone using SSH
+# Requires SSH keys configured
+# After setup: no password needed
+
+git clone https://github.com/USERNAME/REPOSITORY.git
+# Clone using HTTPS
+# Requires GitHub username and Personal Access Token (or credential manager)
+# May prompt for credentials
+```
+
+### Change existing repository to SSH
+
+```bash
+git remote set-url origin git@github.com:USERNAME/REPOSITORY.git
+# Change remote URL from HTTPS to SSH
+
+git remote -v
+# Verify the change worked
+# Should show git@ URLs instead of https://
+```
+
+### GitHub CLI - authentication and basic commands
+
+```bash
+gh auth login
+# Log in to GitHub from the terminal
+# Prompts for protocol (SSH or HTTPS) and authentication method
+
+gh auth status
+# Show current authentication status
+
+gh auth logout
+# Log out from GitHub CLI
+```
+
+### GitHub CLI - Pull Requests
+
+```bash
+gh pr list
+# List all pull requests in current repository
+
+gh pr view <pr-number>
+# View details of a specific PR
+
+gh pr status
+# Show status of PRs related to current branch
+
+gh pr create
+# Create a new pull request from terminal
+
+gh pr comment <pr-number> -b "message"
+# Add a comment to a PR
+
+gh pr merge <pr-number>
+# Merge a pull request
+```
+
+### GitHub CLI - Issues
+
+```bash
+gh issue list
+# List all issues in current repository
+
+gh issue view <issue-number>
+# View details of a specific issue
+
+gh issue create
+# Create a new issue from terminal
+
+gh issue comment <issue-number> -b "message"
+# Add a comment to an issue
+
+gh issue close <issue-number>
+# Close an issue
+```
+
+### GitHub CLI - Repository management
+
+```bash
+gh repo list
+# List your GitHub repositories
+
+gh repo view <owner>/<repo>
+# View repository details
+
+gh repo clone <owner>/<repo>
+# Clone repository using GitHub CLI
+
+gh repo create
+# Create a new repository on GitHub from terminal
+```
 
 ---
 
@@ -290,6 +445,169 @@ git push -u origin feature-name
 ```
 
 This is the normal process for starting a small feature branch on GitHub.
+
+---
+
+## 12. SSH Authentication
+
+### Check SSH installed
+```bash
+ssh -V
+```
+Shows the installed SSH version.
+- Verify by seeing a version number like `OpenSSH_8.6p1`.
+
+### Check existing SSH keys
+```bash
+ls -al ~/.ssh
+```
+Lists SSH files in the home directory.
+- Look for `id_ed25519`, `id_rsa`, and `.pub` files.
+
+### Check for public keys
+```bash
+ls ~/.ssh/*.pub
+```
+Lists only public key files.
+
+---
+
+## 13. Generate SSH Key
+
+### Generate ED25519 key
+```bash
+ssh-keygen -t ed25519 -C "your_email@example.com"
+```
+Creates a new ED25519 SSH key pair.
+- It prompts for a filename and passphrase.
+- Saves private key to `~/.ssh/id_ed25519`.
+- Saves public key to `~/.ssh/id_ed25519.pub`.
+
+---
+
+## 14. Start SSH Agent
+
+### Start the SSH agent
+```bash
+eval "$(ssh-agent -s)"
+```
+Starts the SSH authentication agent for the current shell session.
+- The agent manages SSH keys so you don't need to type the passphrase every time.
+
+---
+
+## 15. Add SSH Key to Agent
+
+### Add private key to agent
+```bash
+ssh-add ~/.ssh/id_ed25519
+```
+Adds the private SSH key to the running SSH agent.
+- After this, Git operations over SSH work without entering the passphrase.
+
+---
+
+## 16. Display and copy SSH public key
+
+### Show public key
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+Displays the public SSH key content.
+- Copy the entire output.
+
+### Add public key to GitHub
+1. Copy the public key output
+2. Go to GitHub → Settings → SSH and GPG keys
+3. Click "New SSH key"
+4. Paste the public key
+5. Add a title and click "Add SSH key"
+
+---
+
+## 17. Test GitHub SSH connection
+
+### Test SSH authentication
+```bash
+ssh -T git@github.com
+```
+Tests whether SSH authentication with GitHub works.
+- Success message: `Hi USERNAME! You've successfully authenticated, but GitHub does not provide shell access.`
+- If it fails, check that the public key is added to GitHub.
+
+---
+
+## 18. GitHub SSH URLs
+
+### SSH URL format
+```
+git@github.com:USERNAME/REPOSITORY.git
+```
+This is the SSH-based repository URL for GitHub.
+
+### HTTPS URL format
+```
+https://github.com/USERNAME/REPOSITORY.git
+```
+This is the HTTPS-based repository URL for GitHub.
+
+---
+
+## 19. Change existing repository to SSH
+
+### Change remote URL from HTTPS to SSH
+```bash
+git remote set-url origin git@github.com:USERNAME/REPOSITORY.git
+```
+Converts a repository using HTTPS to SSH authentication.
+
+### Verify the change
+```bash
+git remote -v
+```
+Confirms the remote now uses the SSH URL.
+
+---
+
+## 20. GitHub SSH workflow
+
+```bash
+ssh-keygen -t ed25519 -C "your_email@example.com"
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+cat ~/.ssh/id_ed25519.pub
+# Copy public key to GitHub Settings
+ssh -T git@github.com
+git clone git@github.com:USERNAME/REPOSITORY.git
+git push
+```
+
+This workflow:
+1. Generates an SSH key
+2. Starts the SSH agent
+3. Adds the key to the agent
+4. Copies the public key to GitHub
+5. Tests the connection
+6. Clones a repo using SSH
+7. Pushes changes using SSH
+
+---
+
+## 21. GitHub workflow with remotes and branches
+
+```bash
+git clone git@github.com:USERNAME/REPOSITORY.git
+cd REPOSITORY
+git status
+git switch -c feature-branch
+git add .
+git commit -m "Add feature"
+git push -u origin feature-branch
+git fetch origin
+git pull origin main
+```
+
+This is a typical GitHub workflow using SSH.
 
 ---
 
