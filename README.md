@@ -92,3 +92,11 @@ devops-learning
 4. Replit projects and deployment basics
 5. Cloud storage fundamentals
 6. Docker, CI/CD, AWS, Kubernetes, Terraform, and Monitoring
+
+### Learning order
+
+For Replit, don't spend too much time on it yet:
+
+```text
+Linux  ↓ Git  ↓ GitHub  ↓ Replit  ↓ Bash scripting  ↓ Docker  ↓ CI/CD
+```
