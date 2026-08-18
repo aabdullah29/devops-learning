@@ -1,5 +1,37 @@
 # Linux Commands
 
+## Useful quick reference
+
+| Goal | Command |
+|---|---|
+| OS info | `cat /etc/os-release` |
+| CPU count | `nproc` |
+| CPU info | `lscpu` |
+| RAM/swap | `free -h` |
+| Disk usage | `df -h` |
+| Root disk usage | `df -h /` |
+| Disk/partitions/LVM | `lsblk` |
+| Network/IP | `ip -br addr` |
+| Test network | `ping -c 4 8.8.8.8` |
+| Hostname | `hostname` |
+| Detailed system info | `hostnamectl` |
+| Files & directories | `ls`, `cd`, `mkdir`, `cp`, `mv`, `rm`, `find` |
+| Permissions & ownership | `ls -l`, `chmod`, `chown`, `whoami` |
+| Users & groups | `whoami`, `id`, `sudo` |
+| Processes | `ps`, `top` |
+| Services / systemd | `systemctl status`, `systemctl start`, `systemctl enable` |
+| Packages | `sudo apt update`, `apt list --upgradable`, `sudo apt upgrade` |
+| SSH | `ssh`, `ssh-keygen`, `ssh-copy-id` |
+| Logs | `journalctl`, `tail -f /var/log/syslog` |
+| Listening ports | `ss -tlnp` |
+| Boot time | `systemd-analyze` |
+| System errors | `journalctl -p 3 -b --no-pager` |
+| Installed packages | `apt list --installed`, `dpkg -l` |
+| Manual packages | `apt-mark showmanual` |
+| Change password | `passwd` |
+
+---
+
 ## 1. Basic filesystem commands
 
 ### `pwd`
@@ -344,81 +376,208 @@ Runs a command as root/admin.
 
 ---
 
-## 10. Quick learning checklist
+## 10. OS information and hostname
 
-Whenever you see a Linux command, try to answer these:
-- What does it do?
-- Which part of Linux does it interact with?
-- What should the output look like?
-- How can I verify the result?
+### `cat /etc/os-release`
+```bash
+cat /etc/os-release
+```
+Shows the OS distribution information.
+- Check result: prints the Ubuntu release details.
 
-Example:
+### `lsb_release -a`
+```bash
+lsb_release -a
+```
+Shows detailed Linux distribution information.
+- Useful when `cat /etc/os-release` is not enough.
 
+### `hostname`
+```bash
+hostname
+```
+Shows the current machine hostname.
+- Verify by checking the printed host name.
+
+### `hostnamectl`
+```bash
+hostnamectl
+```
+Shows system and hardware details such as hostname, OS, kernel, and architecture.
+- Check result: output includes hostname and OS details.
+
+---
+
+## 11. CPU and shell basics
+
+### `nproc`
+```bash
+nproc
+```
+Shows how many processing units are available.
+- Check result: number of CPUs/cores visible to the system.
+
+### `lscpu`
+```bash
+lscpu
+```
+Shows detailed CPU architecture and model information.
+
+### `lscpu | grep -E 'Architecture|CPU\(s\)|Model name'`
+```bash
+lscpu | grep -E 'Architecture|CPU\(s\)|Model name'
+```
+Filters the CPU output to the most relevant lines.
+- `|` sends output from one command to another.
+- `grep` filters matching lines.
+
+### `grep`
+```bash
+grep "text" file.txt
+```
+Searches for text in a file or command output.
+- Check result: matching lines appear.
+
+### `echo`
+```bash
+echo "Hello"
+```
+Prints text to the terminal.
+- Good for testing shell behavior in scripts and commands.
+
+### `||` fallback logic
+```bash
+lsb_release -a 2>/dev/null || cat /etc/os-release
+```
+Runs the second command only if the first one fails.
+- `2>/dev/null` hides error output.
+
+---
+
+## 12. System service commands
+
+### `systemctl --type=service --state=running`
+```bash
+systemctl --type=service --state=running
+```
+Shows currently running services.
+- Check the result: running services are listed.
+
+### `systemctl list-unit-files --type=service`
+```bash
+systemctl list-unit-files --type=service
+```
+Shows installed service unit files.
+- Useful for checking service availability and configuration.
+
+### `systemctl list-unit-files --type=service --state=disabled`
+```bash
+systemctl list-unit-files --type=service --state=disabled
+```
+Shows services that are installed but disabled.
+- Verify by looking for `disabled` entries.
+
+### `systemctl status <service-name>`
 ```bash
 systemctl status ssh
 ```
+Shows detailed state for a specific service.
+- Check result: active, failed, enabled, or disabled status.
 
-Break it down:
-> `systemctl` → communicates with systemd  
-> `status` → asks for the current state  
-> `ssh` → the service being inspected
-
-Then verify with:
+### `systemctl is-active ssh`
 ```bash
 systemctl is-active ssh
-ss -tlnp | grep ':22'
 ```
+Returns whether the service is active.
+- Output is usually `active`.
 
-Together, these commands confirm whether the service is actually running and listening.
+### `systemctl start / stop / restart / enable / disable`
+```bash
+sudo systemctl start ssh
+sudo systemctl stop ssh
+sudo systemctl restart ssh
+sudo systemctl enable ssh
+sudo systemctl disable ssh
+```
+Changes the state of a service.
+- Verify with `systemctl status ssh` or `systemctl is-active ssh`.
 
 ---
 
-## 11. Useful quick reference
+## 13. Boot, logs, and troubleshooting
 
-| Goal | Command |
-|---|---|
-| OS info | `cat /etc/os-release` |
-| CPU count | `nproc` |
-| CPU info | `lscpu` |
-| RAM/swap | `free -h` |
-| Disk usage | `df -h` |
-| Root disk usage | `df -h /` |
-| Disk/partitions/LVM | `lsblk` |
-| Network/IP | `ip -br addr` |
-| Test network | `ping -c 4 8.8.8.8` |
-| Hostname | `hostname` |
-| Detailed system info | `hostnamectl` |
-| Running services | `systemctl --type=service --state=running` |
-| Service status | `systemctl status <service>` |
-| SSH service | `systemctl status ssh` |
-| Listening ports | `ss -tlnp` |
-| Boot time | `systemd-analyze` |
-| System errors | `journalctl -p 3 -b --no-pager` |
-| Update package lists | `sudo apt update` |
-| Available updates | `apt list --upgradable` |
-| Install updates | `sudo apt upgrade` |
-| Installed packages | `apt list --installed` |
-| Manual packages | `apt-mark showmanual` |
-| Change password | `passwd` |
+### `systemd-analyze`
+```bash
+systemd-analyze
+```
+Shows system boot time information.
+- Check result: startup duration and breakdown.
+
+### `journalctl -p 3 -b --no-pager`
+```bash
+journalctl -p 3 -b --no-pager
+```
+Shows error-level log messages from the current boot.
+- Useful for diagnosing problems.
+
+### `tail -f /var/log/syslog`
+```bash
+tail -f /var/log/syslog
+```
+Displays the latest log entries and follows new ones.
+- Good for live troubleshooting.
 
 ---
 
-## 12. Current VM summary
+## 14. Packages and installed software
 
-```text
-OS:          Ubuntu 26.04 LTS
-Architecture: ARM64 / aarch64
-Virtualization: VMware
-CPU:         2 vCPUs
-RAM:         ~2.6 GiB
-Disk:        30 GB
-Root LV:     ~13.5 GB
-Root usage:  ~45%
-Network:     enp2s0
-IP:          192.168.187.129
-SSH:         Active
-Hostname:    d-ops
+### `sudo apt update`
+```bash
+sudo apt update
 ```
+Refreshes package metadata from Ubuntu repositories.
+- It does not install new versions yet.
+
+### `apt list --upgradable`
+```bash
+apt list --upgradable
+```
+Lists packages that can be upgraded.
+- Check result: package names and new versions appear.
+
+### `sudo apt upgrade`
+```bash
+sudo apt upgrade
+```
+Installs available upgrades.
+- Verify by re-running `apt list --upgradable`.
+
+### `apt list --installed`
+```bash
+apt list --installed
+```
+Lists installed packages.
+
+### `dpkg -l`
+```bash
+dpkg -l
+```
+Shows installed packages in a more detailed package-manager view.
+
+### `apt-mark showmanual`
+```bash
+apt-mark showmanual
+```
+Shows packages that were manually installed.
+
+### `dpkg -l | grep nginx`
+```bash
+dpkg -l | grep nginx
+```
+Searches installed packages for a specific name.
+- Good for checking whether a package is installed.
+
+---
 
 > Keep adding new commands, examples, and notes to this file as you learn.
 

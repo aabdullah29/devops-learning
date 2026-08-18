@@ -549,21 +549,4 @@ sudo apt update
 
 ---
 
-## Current VM Summary
-
-```text
-OS:          Ubuntu 26.04 LTS
-Architecture: ARM64 / aarch64
-Virtualization: VMware
-CPU:         2 vCPUs
-RAM:         ~2.6 GiB
-Disk:        30 GB
-Root LV:     ~13.5 GB
-Root usage:  ~45%
-Network:     enp2s0
-IP:          192.168.187.129
-SSH:         Active
-Hostname:    d-ops
-```
-
 > Keep adding new commands, examples, and notes to this file as you learn.
