@@ -45,6 +45,10 @@
 | Edit scheduled jobs | `crontab -e` |
 | Create variable | `variable="value"` |
 | Make script executable | `chmod +x script.sh` |
+| Shutdown system | `shutdown -h now`, `shutdown -h +5`, `poweroff` |
+| Reboot system | `shutdown -r now`, `reboot` |
+| Cancel shutdown | `shutdown -c` |
+| Halt system | `halt` |
 
 ---
 
@@ -1188,6 +1192,147 @@ Adds execute permission to a script.
 ./script.sh
 ```
 Executes the script from the current directory.
+
+---
+
+## 25. System shutdown and reboot
+
+### `shutdown` command
+```bash
+shutdown [OPTIONS] [TIME] [MESSAGE]
+```
+Schedules the system to shutdown or reboot.
+- What is it? A system control command that gracefully shuts down the machine.
+- Why do I need it? To safely shut down the system with a grace period.
+- What does it change? Prepares the system for shutdown.
+- How do I verify it? Check system status or wait for shutdown.
+
+### Shutdown immediately
+```bash
+shutdown -h now
+# Shutdown immediately (-h = halt)
+# "now" means execute immediately
+
+shutdown -h 0
+# Same as 'shutdown -h now'
+```
+Shuts down the system right away.
+
+### Shutdown with delay (minutes)
+```bash
+shutdown -h +5
+# Shutdown in 5 minutes
+
+shutdown -h +10
+# Shutdown in 10 minutes
+
+shutdown -h +30
+# Shutdown in 30 minutes
+```
+Gives users time to save work before shutdown.
+
+### Shutdown at specific time
+```bash
+shutdown -h 14:30
+# Shutdown at 2:30 PM today
+
+shutdown -h 23:59
+# Shutdown at 11:59 PM
+```
+Schedules shutdown for a specific time of day.
+
+### Shutdown with warning message
+```bash
+shutdown -h +5 "System maintenance in 5 minutes"
+# Shutdown in 5 minutes with custom message
+# Connected users will see this message
+```
+Notifies logged-in users about the shutdown reason.
+
+### Reboot system
+```bash
+shutdown -r now
+# Reboot immediately (-r = reboot)
+
+shutdown -r +5
+# Reboot in 5 minutes
+
+shutdown -r 15:00
+# Reboot at 3:00 PM
+```
+Reboots instead of powering off.
+
+### Cancel scheduled shutdown
+```bash
+shutdown -c
+# Cancel any pending shutdown or reboot
+```
+Cancels a previously scheduled shutdown.
+- Example: if you scheduled `shutdown -h +10` but want to cancel it
+- Only works if shutdown hasn't started yet
+
+### Quick shutdown alternatives
+```bash
+poweroff
+# Power off immediately (no grace period)
+
+reboot
+# Reboot immediately (no grace period)
+
+halt
+# Halt the system (stop all processes)
+```
+These are faster but less safe than `shutdown` command.
+
+### Shutdown with option combinations
+```bash
+shutdown -h +10 "Database backup in progress. Shutdown in 10 minutes"
+# Combined: 10-minute delay + reboot message
+
+shutdown -r now --no-wall
+# Reboot now without wall message (don't notify users)
+```
+Useful for scripted or automated shutdowns.
+
+### Shutdown for maintenance
+```bash
+shutdown -h +120
+# Provide 2-hour warning for maintenance
+# Users have time to close applications
+
+shutdown -c
+# Cancel if maintenance is postponed
+```
+Gives administrators and users advance notice.
+
+### Important notes
+
+**Permissions:**
+- Most shutdown commands require `sudo` or root access
+- Regular users cannot usually shutdown the system
+
+**Examples:**
+```bash
+sudo shutdown -h now
+# Need sudo to execute
+
+sudo shutdown -r +5 "Patching system"
+# Reboot in 5 minutes with message
+```
+
+**Best practices:**
+- Always use `shutdown` for graceful shutdown, not `poweroff` or `halt`
+- Give users warning time (e.g., +10 or +30 minutes)
+- Use descriptive messages for why shutdown is happening
+- Cancel if shutdown is no longer needed
+- Check `who` command to see logged-in users before shutdown
+
+**Check scheduled shutdown:**
+```bash
+shutdown -c
+# If no shutdown is pending, you'll get a message
+# If one is pending, it will show details and ask to confirm cancellation
+```
 
 ---
 
